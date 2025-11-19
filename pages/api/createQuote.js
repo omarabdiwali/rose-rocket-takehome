@@ -80,6 +80,7 @@ export default async function handler(req, res) {
       pickupDate,
       distance,
       days: distance == 0 ? 1 : Math.ceil(distance / maximumDayTravel),
+      timestamp: new Date().getTime(),
       ...calculateTotal(distance, parseFloat(weight), equipmentType)
     }
     // Returns the quote object.

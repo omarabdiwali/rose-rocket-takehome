@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   MagnifyingGlassIcon, TruckIcon, FunnelIcon, ClockIcon, ScaleIcon,
   CalendarIcon, ArrowsRightLeftIcon, CalculatorIcon,
@@ -35,14 +35,10 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
   const endIndex = startIndex + itemsPerPage;
   const currentQuotes = quotes.slice(startIndex, endIndex);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentPage])
-
   /**
    * Formats the equipment type for better readability.
-   * @param {string} type - The equipment type ('dry_van', 'reefer', 'flatbed', or an empty string).
-   * @returns {string} The formatted type.
+   * @param {string} type - The equipment type ('dry_van', 'reefer', or 'flatbed').
+   * @returns {string} The formatted equipment type.
    */
   const formatEquipmentType = (type) => {
     if (!type) return 'N/A';
@@ -54,9 +50,9 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
   }
 
   /**
-   * Handles the changing of the filters, and in turn, the quotes.
-   * @param {string} key - The key to change ('origin', 'destination', 'equipment').
-   * @param {string} value - The value to change that key to.
+   * Handles changing the filter parameters, and in turn, the quotes.
+   * @param {string} key - The key to filter ('origin', 'destination', or 'equipment').
+   * @param {string} value - The value to filter with.
    */
   const handleFilterChange = (key, value) => {
     setFilters({ ...filters, [key]: value });
@@ -64,8 +60,8 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
   };
 
   /**
-   * Handles the visibility of the quotes.
-   * @param {number} index - The index which signifies which quote to change.
+   * Handles the toggle of the quotes, expanding or retracting them.
+   * @param {number} index - The index of the quote to toggle.
    */
   const handleToggle = (index) => {
     setExpandedIndex(index === expandedIndex ? null : index);
@@ -83,7 +79,6 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
       filters.destination.length > 0 ||
       filters.equipment.length !== "");
 
-  // Returns info to the user if no previous quotes are found.
   if (isHistoryEmpty) return (
     <div className="text-center py-12 text-slate-600">
       <ClockIcon className="w-12 h-12 mx-auto mb-3 opacity-20" />
@@ -92,7 +87,7 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
   );
 
   /**
-   * Helper component for the values of the quote breakdown.
+   * Helper component for rate breakdown values.
    * @returns {JSX.Element}
    */
   const DetailItem = ({ icon: Icon, label, value, currency = true, unit = "" }) => (
@@ -114,7 +109,6 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
 
       {/* Filtering Controls */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-
         {/* Origin Filter */}
         <div className="relative flex-grow">
           <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -155,8 +149,45 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
         </div>
       </div>
 
-      {/* Quote List & Pagination */}
+      {/* Quote List & Pagination Container */}
       <div className="space-y-4">
+        
+        {/* Pagination Controls */}
+        {totalPages > 0 && (
+          <div className="flex justify-between items-center mb-2 pb-2 flex-wrap gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="cursor-pointer px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 transition-colors"
+            >
+              Previous
+            </button>
+
+            <div className="flex gap-1 flex-wrap justify-center">
+              {[...Array(totalPages).keys()].map(page => (
+                <button
+                  key={page + 1}
+                  onClick={() => setCurrentPage(page + 1)}
+                  className={`w-8 h-8 rounded-lg border text-sm ${currentPage === page + 1
+                    ? 'bg-indigo-500 border-indigo-500 text-white'
+                    : 'bg-slate-800 cursor-pointer border-slate-700 hover:bg-slate-700'
+                    }`}
+                >
+                  {page + 1}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="cursor-pointer px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        )}
+
         {/* Status Messages */}
         {isFilteredEmpty && (
           <p className="text-center py-6 text-slate-500 bg-slate-800 rounded-xl border border-slate-700">
@@ -175,13 +206,13 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
               className={isExpanded ? 'bg-slate-700 border-indigo-500' : ''}
               onClick={() => handleToggle(index)}
             >
-              {/* MAIN CARD LAYOUT: Flex Col on Mobile, Row on Desktop */}
+              {/* Card Content */}
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full gap-4">
 
                 {/* Left Side: Route & Equipment */}
                 <div className="flex items-start gap-4 w-full sm:w-auto">
                   <TruckIcon className="h-8 w-8 text-indigo-400 flex-shrink-0 mt-1 sm:mt-0" />
-                  <div className="min-w-0 flex-1"> {/* min-w-0 enables text truncation in flex children */}
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-slate-400 flex flex-wrap items-center gap-1">
                       <span className="text-slate-200 font-semibold break-words">{quote.origin}</span>
                       <span className="text-indigo-600 mx-1">→</span>
@@ -213,7 +244,7 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
                     </div>
                   </div>
 
-                  {/* Action Buttons Container */}
+                  {/* Action Buttons */}
                   <div className="flex items-center gap-3">
                     {/* Delete Button */}
                     <button
@@ -240,7 +271,7 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
                 </div>
               </div>
 
-              {/* Detailed Information (Conditionally Rendered) */}
+              {/* Detailed Information */}
               {isExpanded && (
                 <div className="mt-4 pt-4 border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4">
                   <h3 className="text-lg font-semibold text-slate-200 col-span-1 sm:col-span-2 mb-2 border-b border-slate-700 pb-1">Rate Breakdown</h3>
@@ -285,41 +316,6 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
             </Card>
           );
         })}
-        {totalPages > 0 && (
-          <div className="flex justify-between items-center mt-6 flex-wrap gap-2">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="cursor-pointer px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 transition-colors"
-            >
-              Previous
-            </button>
-
-            {/* Hide Page Numbers on very small screens if crowded, otherwise flex wrap handles it */}
-            <div className="flex gap-1 flex-wrap justify-center">
-              {[...Array(totalPages).keys()].map(page => (
-                <button
-                  key={page + 1}
-                  onClick={() => setCurrentPage(page + 1)}
-                  className={`w-8 h-8 rounded-lg border text-sm ${currentPage === page + 1
-                    ? 'bg-indigo-500 border-indigo-500 text-white'
-                    : 'bg-slate-800 cursor-pointer border-slate-700 hover:bg-slate-700'
-                    }`}
-                >
-                  {page + 1}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="cursor-pointer px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 transition-colors"
-            >
-              Next
-            </button>
-          </div>
-        )}
       </div>
     </section>
   );

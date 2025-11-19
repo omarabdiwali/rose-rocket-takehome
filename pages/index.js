@@ -16,6 +16,9 @@ import { currencyFormatter, equipmentCharges, getFuelSurchargePercent, numberFor
 
 const libraries = ["places"];
 const sortQuotes = (a, b) => {
+  if (new Date(a.pickupDate) - new Date(b.pickupDate) == 0) {
+    return a.timestamp - b.timestamp;
+  }
   return new Date(a.pickupDate) - new Date(b.pickupDate);
 }
 
