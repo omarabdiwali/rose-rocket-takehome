@@ -6,9 +6,9 @@ const options = {
 export const currencyFormatter = new Intl.NumberFormat("en-CA", options);
 export const numberFormatter = new Intl.NumberFormat("en-CA");
 export const equipmentCharges = {
-  "dry_van": "1.0x",
-  "reefer": "1.3x",
-  "flatbed": "1.15x"
+  "dry_van": "0%",
+  "reefer": "30%",
+  "flatbed": "15%"
 }
 
 /**

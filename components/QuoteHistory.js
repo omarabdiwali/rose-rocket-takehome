@@ -15,8 +15,8 @@ import { currencyFormatter, equipmentCharges, getFuelSurchargePercent, numberFor
 const Card = ({ children, className = "", onClick }) => (
   <div
     className={`p-5 bg-slate-800 rounded-xl shadow-lg border border-slate-700 cursor-pointer 
-               hover:border-indigo-500/50 hover:shadow-indigo-500/20 
-               transition-all duration-300 ${className}`}
+                hover:border-indigo-500/50 hover:shadow-indigo-500/20 
+                transition-all duration-300 ${className}`}
     onClick={onClick}
     aria-expanded={className.includes('bg-slate-700')}
   >
@@ -97,9 +97,11 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
    */
   const DetailItem = ({ icon: Icon, label, value, currency = true, unit = "" }) => (
     <div className="flex items-center text-sm text-slate-400">
-      <Icon className="w-4 h-4 mr-2 text-indigo-400" />
-      <span className="font-medium text-slate-300">{label}:</span>
-      <span className="ml-2 font-mono text-indigo-200">{!currency ? `${numberFormatter.format(value.toFixed(0))} ${unit}` : currencyFormatter.format(value)}</span>
+      <Icon className="w-4 h-4 mr-2 text-indigo-400 flex-shrink-0" />
+      <span className="font-medium text-slate-300 truncate mr-1">{label}:</span>
+      <span className="font-mono text-indigo-200 whitespace-nowrap">
+        {!currency ? `${numberFormatter.format(value.toFixed(0))} ${unit}` : currencyFormatter.format(value)}
+      </span>
     </div>
   );
 
@@ -141,7 +143,7 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
         <div className="relative">
           <FunnelIcon className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <select
-            className="pl-10 pr-8 py-2 w-full md:w-60 border border-slate-600 rounded-xl focus:ring-indigo-500 focus:border-transparent bg-slate-700 text-slate-50 transition"
+            className="pl-10 pr-8 py-2 w-full md:w-60 border border-slate-600 rounded-xl focus:ring-indigo-500 focus:border-transparent bg-slate-700 text-slate-50 transition appearance-none"
             value={filters.equipment}
             onChange={(e) => handleFilterChange('equipment', e.target.value)}
           >
@@ -173,22 +175,23 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
               className={isExpanded ? 'bg-slate-700 border-indigo-500' : ''}
               onClick={() => handleToggle(index)}
             >
-              <div className="flex justify-between items-center w-full">
+              {/* MAIN CARD LAYOUT: Flex Col on Mobile, Row on Desktop */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full gap-4">
 
-                {/* Left Side: Route & Equipment (Always Visible) */}
-                <div className="flex items-center gap-4 flex-shrink min-w-0">
-                  <TruckIcon className="h-8 w-8 text-indigo-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium text-slate-400">
-                      <span className="text-slate-200 font-semibold line-clamp-1">{quote.origin}</span>
-                      <span className="text-indigo-600 mx-2">→</span>
-                      <span className="text-slate-200 font-semibold line-clamp-1">{quote.destination}</span>
+                {/* Left Side: Route & Equipment */}
+                <div className="flex items-start gap-4 w-full sm:w-auto">
+                  <TruckIcon className="h-8 w-8 text-indigo-400 flex-shrink-0 mt-1 sm:mt-0" />
+                  <div className="min-w-0 flex-1"> {/* min-w-0 enables text truncation in flex children */}
+                    <p className="text-sm font-medium text-slate-400 flex flex-wrap items-center gap-1">
+                      <span className="text-slate-200 font-semibold break-words">{quote.origin}</span>
+                      <span className="text-indigo-600 mx-1">→</span>
+                      <span className="text-slate-200 font-semibold break-words">{quote.destination}</span>
                     </p>
-                    <div className="flex gap-3 text-xs text-slate-500 mt-1">
-                      <span className="inline-flex items-center px-3 py-1 font-medium rounded-full bg-indigo-900/50 text-indigo-300">
+                    <div className="flex flex-wrap gap-3 text-xs text-slate-500 mt-2 sm:mt-1">
+                      <span className="inline-flex items-center px-3 py-1 font-medium rounded-full bg-indigo-900/50 text-indigo-300 whitespace-nowrap">
                         {formatEquipmentType(quote.equipmentType)}
                       </span>
-                      <span className="flex items-center text-slate-400">
+                      <span className="flex items-center text-slate-400 whitespace-nowrap">
                         <ScaleIcon className="w-3.5 h-3.5 inline mr-1" />
                         {numberFormatter.format(quote.weight)} lbs
                       </span>
@@ -196,49 +199,51 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
                   </div>
                 </div>
 
-                {/* Right Side: Price, Date, and Chevron */}
-                <div className="flex items-center gap-4 flex-shrink-0">
-                  {/* Price & Date (Always Visible) */}
-                  <div className="text-right">
+                {/* Right Side: Price, Date, and Actions */}
+                <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pl-12 sm:pl-0">
+                  
+                  {/* Price & Date */}
+                  <div className="text-left sm:text-right">
                     <p className="text-2xl font-extrabold text-green-400">
                       {currencyFormatter.format(quote.total)}
                     </p>
-                    <div className="text-xs text-slate-400 flex items-center gap-1 mt-1 justify-end">
+                    <div className="text-xs text-slate-400 flex items-center gap-1 mt-1 sm:justify-end">
                       <CalendarIcon className="w-3.5 h-3.5" />
                       {quote.pickupDate}
                     </div>
                   </div>
 
-                  {/* Delete Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Handling the deletion of the quote, and if the page needs to be changed.
-                      const changePage = currentQuotes.length == 1;
-                      deleteQuote(index);
-                      // If the current index was expanded, set expandedIndex to null.
-                      if (index === expandedIndex) {
-                        setExpandedIndex(null);
-                      }
-                      if (changePage) setCurrentPage(Math.max(1, currentPage - 1));
-                    }}
-                    className="text-rose-300 cursor-pointer hover:text-rose-500 transition-colors p-1 rounded-md"
-                    title="Delete quote"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
+                  {/* Action Buttons Container */}
+                  <div className="flex items-center gap-3">
+                    {/* Delete Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const changePage = currentQuotes.length == 1;
+                        deleteQuote(index);
+                        if (index === expandedIndex) {
+                          setExpandedIndex(null);
+                        }
+                        if (changePage) setCurrentPage(Math.max(1, currentPage - 1));
+                      }}
+                      className="text-rose-300 cursor-pointer hover:text-rose-500 transition-colors p-2 rounded-md hover:bg-rose-900/20"
+                      title="Delete quote"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
 
-                  {/* Chevron Icon for Expansion */}
-                  <ChevronDownIcon
-                    className={`w-5 h-5 text-indigo-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
-                  />
+                    {/* Chevron Icon for Expansion */}
+                    <ChevronDownIcon
+                      className={`w-5 h-5 text-indigo-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Detailed Information (Conditionally Rendered) */}
               {isExpanded && (
-                <div className="mt-4 pt-4 border-slate-700 grid grid-cols-2 gap-y-2 gap-x-4">
-                  <h3 className="text-lg font-semibold text-slate-200 col-span-2 mb-2 border-b border-slate-700 pb-1">Rate Breakdown</h3>
+                <div className="mt-4 pt-4 border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4">
+                  <h3 className="text-lg font-semibold text-slate-200 col-span-1 sm:col-span-2 mb-2 border-b border-slate-700 pb-1">Rate Breakdown</h3>
 
                   <DetailItem
                     icon={ArrowsRightLeftIcon}
@@ -281,7 +286,7 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
           );
         })}
         {totalPages > 0 && (
-          <div className="flex justify-between items-center mt-6">
+          <div className="flex justify-between items-center mt-6 flex-wrap gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
@@ -289,17 +294,17 @@ export default function QuoteHistory({ quotes, filters, setFilters, deleteQuote 
             >
               Previous
             </button>
-            
-            <div className="flex gap-1">
+
+            {/* Hide Page Numbers on very small screens if crowded, otherwise flex wrap handles it */}
+            <div className="flex gap-1 flex-wrap justify-center">
               {[...Array(totalPages).keys()].map(page => (
                 <button
                   key={page + 1}
                   onClick={() => setCurrentPage(page + 1)}
-                  className={`w-8 h-8 rounded-lg border text-sm ${
-                    currentPage === page + 1
-                      ? 'bg-indigo-500 border-indigo-500 text-white'
-                      : 'bg-slate-800 cursor-pointer border-slate-700 hover:bg-slate-700'
-                  }`}
+                  className={`w-8 h-8 rounded-lg border text-sm ${currentPage === page + 1
+                    ? 'bg-indigo-500 border-indigo-500 text-white'
+                    : 'bg-slate-800 cursor-pointer border-slate-700 hover:bg-slate-700'
+                    }`}
                 >
                   {page + 1}
                 </button>
