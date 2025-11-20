@@ -39,7 +39,7 @@ const calculateTotal = (distance, weight, equipmentType) => {
   const baseRate = avgKmRate * distance;
   const weightFactor = weight > 10000 ? ((weight - 10000) / 100) * 0.1 : 0;
   const equipmentCharge = baseRate * multipliers[equipmentType]
-  const fuelSurcharge = (baseRate + equipmentCharge) * fuelSurchargePercent;
+  const fuelSurcharge = baseRate * fuelSurchargePercent;
 
   // Returns the price breakdown, and the total amount.
   return {

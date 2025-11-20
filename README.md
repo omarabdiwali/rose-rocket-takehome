@@ -114,9 +114,9 @@ The quote calculation uses the following formulas:
 - **Equipment Surcharge**:
   - Reefer: +30% of base rate
   - Flatbed: +15% of base rate
-- **Fuel Surcharge**:
-  - <10,000 lbs: 23.7%
-  - ≥10,000 lbs: 55.7%
+- **Fuel Surcharge using [Speedy](https://www.speedy.ca/fuel-surcharge)**:
+  - <10,000 lbs (LTL): 23.7%
+  - ≥10,000 lbs (TL): 55.7%
 - **Weight Factor**: $0.10 per 100 lbs over 10,000 lbs
 
 Distance calculation uses Google's Distance Matrix API with results cached in localStorage for improved performance.
