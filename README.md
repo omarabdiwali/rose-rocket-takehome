@@ -104,8 +104,8 @@ The application uses two Google Maps APIs:
 
 To enable these APIs:
 1. Create a project in [Google Cloud Console](https://console.cloud.google.com/)
-2. Enable "Maps JavaScript API" and "Places API"
-3. Generate an API key with proper restrictions
+2. Generate an API key with proper restrictions
+3. Enable "Maps JavaScript API", "Places API", and "Distance Matrix API"
 
 ## Calculation Logic
 
